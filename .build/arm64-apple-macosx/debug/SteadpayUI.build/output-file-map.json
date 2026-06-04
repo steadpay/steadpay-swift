@@ -1,0 +1,33 @@
+{
+  "": {
+    "swift-dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/master.swiftdeps"
+  },
+  "/Users/chrishanth/Development/steadpay-swift/Sources/SteadpayUI/LockoutScreen.swift": {
+    "dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/LockoutScreen.d",
+    "object": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/LockoutScreen.swift.o",
+    "swiftmodule": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/LockoutScreen~partial.swiftmodule",
+    "swift-dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/LockoutScreen.swiftdeps",
+    "diagnostics": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/LockoutScreen.dia"
+  },
+  "/Users/chrishanth/Development/steadpay-swift/Sources/SteadpayUI/SteadpayGate.swift": {
+    "dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpayGate.d",
+    "object": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpayGate.swift.o",
+    "swiftmodule": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpayGate~partial.swiftmodule",
+    "swift-dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpayGate.swiftdeps",
+    "diagnostics": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpayGate.dia"
+  },
+  "/Users/chrishanth/Development/steadpay-swift/Sources/SteadpayUI/SteadpaySandbox.swift": {
+    "dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpaySandbox.d",
+    "object": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpaySandbox.swift.o",
+    "swiftmodule": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpaySandbox~partial.swiftmodule",
+    "swift-dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpaySandbox.swiftdeps",
+    "diagnostics": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/SteadpaySandbox.dia"
+  },
+  "/Users/chrishanth/Development/steadpay-swift/Sources/SteadpayUI/WarningBanner.swift": {
+    "dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/WarningBanner.d",
+    "object": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/WarningBanner.swift.o",
+    "swiftmodule": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/WarningBanner~partial.swiftmodule",
+    "swift-dependencies": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/WarningBanner.swiftdeps",
+    "diagnostics": "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/WarningBanner.dia"
+  }
+}

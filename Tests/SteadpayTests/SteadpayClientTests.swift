@@ -1,0 +1,182 @@
+import XCTest
+import Combine
+@testable import Steadpay
+
+@MainActor
+final class SteadpayClientTests: XCTestCase {
+
+    private func makeConfig(pollInterval: TimeInterval = 600) -> SteadpayConfig {
+        SteadpayConfig(
+            apiBase: "https://app.steadpay.io",
+            tenantSlug: "acme",
+            customerId: "cus_123",
+            publishableKey: "pk_live_abc",
+            pollInterval: pollInterval
+        )
+    }
+
+    private func makeResponse(_ status: SteadpayStatus) -> StatusResponse {
+        StatusResponse(
+            status: status,
+            entitlements: Entitlements(poweredByWatermark: true, customDomain: false, downstreamWebhooks: false),
+            cardUpdateUrl: URL(string: "https://app.steadpay.io/update-card")
+        )
+    }
+
+    // MARK: — initial state
+
+    func testInitialStatusIsLoading() {
+        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _ in
+            self.makeResponse(.active)
+        })
+        XCTAssertEqual(client.status, .loading)
+    }
+
+    func testInitialDismissedIsFalse() {
+        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _ in
+            self.makeResponse(.active)
+        })
+        XCTAssertFalse(client.dismissed)
+    }
+
+    // MARK: — forcedStatus
+
+    func testForcedStatusBypassesPolling() async {
+        var fetchCalled = false
+        let client = SteadpayClient(config: makeConfig(), forcedStatus: .lockout, fetch: { _, _, _, _ in
+            fetchCalled = true
+            return self.makeResponse(.active)
+        })
+        client.start()
+        XCTAssertFalse(fetchCalled)
+        XCTAssertEqual(client.status, .lockout)
+    }
+
+    func testForcedStatusEmitsImmediately() async {
+        let client = SteadpayClient(config: makeConfig(), forcedStatus: .warning, fetch: { _, _, _, _ in
+            self.makeResponse(.active)
+        })
+        client.start()
+        XCTAssertEqual(client.status, .warning)
+    }
+
+    // MARK: — start() polls and publishes
+
+    func testStartPublishesCorrectStatus() async throws {
+        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _ in
+            self.makeResponse(.active)
+        })
+
+        let expectation = XCTestExpectation(description: "status becomes active")
+        var cancellable: AnyCancellable?
+        cancellable = client.$status
+            .dropFirst()
+            .sink { status in
+                if status == .active {
+                    expectation.fulfill()
+                    cancellable?.cancel()
+                }
+            }
+
+        client.start()
+        await fulfillment(of: [expectation], timeout: 2.0)
+        XCTAssertEqual(client.status, .active)
+    }
+
+    // MARK: — dismissWarning
+
+    func testDismissWarningSetsDismissedTrue() {
+        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _ in
+            self.makeResponse(.active)
+        })
+        client.dismissWarning()
+        XCTAssertTrue(client.dismissed)
+    }
+
+    // MARK: — triggerCardUpdate
+
+    func testTriggerCardUpdateResetsDismissed() async throws {
+        let client = SteadpayClient(
+            config: makeConfig(pollInterval: 600),
+            urlOpener: { _ in },
+            fetch: { _, _, _, _ in self.makeResponse(.active) }
+        )
+
+        // inject a forced cardUpdateUrl via start with forcedStatus
+        let forcedClient = SteadpayClient(
+            config: makeConfig(),
+            forcedStatus: .lockout,
+            urlOpener: { _ in },
+            fetch: { _, _, _, _ in self.makeResponse(.active) }
+        )
+        forcedClient.start()
+        forcedClient.dismissWarning()
+        XCTAssertTrue(forcedClient.dismissed)
+        forcedClient.triggerCardUpdate()
+        XCTAssertFalse(forcedClient.dismissed)
+    }
+
+    func testTriggerCardUpdateCallsUrlOpener() async {
+        var openedURL: URL?
+        let client = SteadpayClient(
+            config: makeConfig(),
+            forcedStatus: .lockout,
+            urlOpener: { url in openedURL = url },
+            fetch: { _, _, _, _ in self.makeResponse(.active) }
+        )
+        client.start()
+        client.triggerCardUpdate()
+        XCTAssertNotNil(openedURL)
+    }
+
+    // MARK: — stop()
+
+    func testStopPreventsPolling() async throws {
+        var fetchCallCount = 0
+        let client = SteadpayClient(config: makeConfig(pollInterval: 600), fetch: { _, _, _, _ in
+            fetchCallCount += 1
+            return self.makeResponse(.active)
+        })
+        client.start()
+        client.stop()
+        // Give any in-flight task a moment to complete (it was already dispatched)
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        let callsAfterStop = fetchCallCount
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertEqual(fetchCallCount, callsAfterStop, "No additional polls after stop()")
+    }
+
+    // MARK: — callbacks
+
+    func testOnErrorCallbackFiredOnFetchFailure() async throws {
+        var capturedError: Error?
+        let callbacks = SteadpayCallbacks(onError: { capturedError = $0 })
+        let client = SteadpayClient(
+            config: makeConfig(),
+            callbacks: callbacks,
+            fetch: { _, _, _, _ in throw SteadpayError.unauthorized }
+        )
+
+        let expectation = XCTestExpectation(description: "onError fires")
+        var cancellable: AnyCancellable?
+        cancellable = client.$status
+            .dropFirst()
+            .sink { status in
+                if status == .error {
+                    expectation.fulfill()
+                    cancellable?.cancel()
+                }
+            }
+
+        client.start()
+        await fulfillment(of: [expectation], timeout: 2.0)
+        XCTAssertNotNil(capturedError)
+    }
+}
+
+// Convenience init for tests that omit urlOpener
+extension SteadpayClient {
+    convenience init(config: SteadpayConfig, fetch: @escaping FetchFunction) {
+        self.init(config: config, callbacks: nil, forcedStatus: nil, urlOpener: { _ in }, fetch: fetch)
+    }
+}

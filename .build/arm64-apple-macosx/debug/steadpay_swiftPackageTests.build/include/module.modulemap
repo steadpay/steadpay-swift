@@ -1,0 +1,3 @@
+module steadpay_swiftPackageTests {
+    header "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/steadpay_swiftPackageTests.build/include/steadpay-swiftPackageTests-Swift.h"
+}

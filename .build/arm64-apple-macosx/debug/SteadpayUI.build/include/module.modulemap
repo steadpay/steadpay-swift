@@ -1,0 +1,3 @@
+module SteadpayUI {
+    header "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/SteadpayUI.build/include/SteadpayUI-Swift.h"
+}

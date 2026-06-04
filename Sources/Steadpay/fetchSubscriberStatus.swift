@@ -1,0 +1,48 @@
+import Foundation
+
+private let failOpenResponse = StatusResponse(
+    status: .active,
+    entitlements: Entitlements(poweredByWatermark: false, customDomain: false, downstreamWebhooks: false),
+    cardUpdateUrl: nil
+)
+
+public func fetchSubscriberStatus(
+    baseURL: String,
+    tenantSlug: String,
+    customerId: String,
+    publishableKey: String,
+    session: URLSession = .shared
+) async throws -> StatusResponse {
+    let encodedSlug = tenantSlug.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? tenantSlug
+    let encodedCustomer = customerId.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? customerId
+
+    guard let url = URL(string: "\(baseURL)/api/subscriber-status/\(encodedSlug)?stripe_customer_id=\(encodedCustomer)") else {
+        throw SteadpayError.invalidURL
+    }
+
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
+
+    let (data, response) = try await session.data(for: request)
+    guard let http = response as? HTTPURLResponse else {
+        throw SteadpayError.unexpectedStatus(0)
+    }
+
+    if http.statusCode == 402 { return failOpenResponse }
+    if http.statusCode == 401 { throw SteadpayError.unauthorized }
+    if http.statusCode == 404 { throw SteadpayError.tenantNotFound }
+    guard http.statusCode == 200 else {
+        throw SteadpayError.unexpectedStatus(http.statusCode)
+    }
+
+    let json = try JSONDecoder().decode(APIResponse.self, from: data)
+    return StatusResponse(
+        status: SteadpayStatus(rawValue: json.status) ?? .error,
+        entitlements: Entitlements(
+            poweredByWatermark: json.entitlements.powered_by_watermark,
+            customDomain: json.entitlements.custom_domain,
+            downstreamWebhooks: json.entitlements.downstream_webhooks
+        ),
+        cardUpdateUrl: json.card_update_url.flatMap { URL(string: $0) }
+    )
+}
