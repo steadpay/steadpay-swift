@@ -1,3 +1,0 @@
-module Steadpay {
-    header "/Users/chrishanth/Development/steadpay-swift/.build/arm64-apple-macosx/debug/Steadpay.build/include/Steadpay-Swift.h"
-}
