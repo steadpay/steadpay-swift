@@ -17,6 +17,7 @@ private struct SteadpayGateCore: View {
     init(
         config: SteadpayConfig,
         callbacks: SteadpayCallbacks?,
+        forcedStatus: SteadpayStatus?,
         lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)?,
         warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)?,
         content: AnyView
@@ -29,7 +30,12 @@ private struct SteadpayGateCore: View {
 #endif
         }
         _client = StateObject(
-            wrappedValue: SteadpayClient(config: config, callbacks: callbacks, urlOpener: opener)
+            wrappedValue: SteadpayClient(
+                config: config,
+                callbacks: callbacks,
+                forcedStatus: forcedStatus,
+                urlOpener: opener
+            )
         )
         self.lockoutScreen = lockoutScreen
         self.warningBanner = warningBanner
@@ -74,6 +80,7 @@ public struct SteadpayGate<Content: View>: View {
     private let publishableKey: String
     private let apiBase: String
     private let pollInterval: TimeInterval
+    private let forcedStatus: SteadpayStatus?
     private let callbacks: SteadpayCallbacks?
     private let lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)?
     private let warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)?
@@ -85,6 +92,7 @@ public struct SteadpayGate<Content: View>: View {
         publishableKey: String,
         apiBase: String,
         pollInterval: TimeInterval = 600,
+        forcedStatus: SteadpayStatus? = nil,
         callbacks: SteadpayCallbacks? = nil,
         lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)? = nil,
         warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)? = nil,
@@ -95,6 +103,7 @@ public struct SteadpayGate<Content: View>: View {
         self.publishableKey = publishableKey
         self.apiBase = apiBase
         self.pollInterval = pollInterval
+        self.forcedStatus = forcedStatus
         self.callbacks = callbacks
         self.lockoutScreen = lockoutScreen
         self.warningBanner = warningBanner
@@ -111,6 +120,7 @@ public struct SteadpayGate<Content: View>: View {
                 pollInterval: pollInterval
             ),
             callbacks: callbacks,
+            forcedStatus: forcedStatus,
             lockoutScreen: lockoutScreen,
             warningBanner: warningBanner,
             content: AnyView(content)

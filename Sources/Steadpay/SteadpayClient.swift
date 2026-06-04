@@ -76,11 +76,14 @@ public final class SteadpayClient: ObservableObject {
         }
     }
 
+    private static let minPollInterval: TimeInterval = 60
+
     private func runPollingLoop() async {
         await doPoll()
         guard !Task.isCancelled, status != .lockout else { return }
 
-        let intervalNS = UInt64(config.pollInterval * 1_000_000_000)
+        let clampedInterval = max(Self.minPollInterval, config.pollInterval)
+        let intervalNS = UInt64(clampedInterval * 1_000_000_000)
         while !Task.isCancelled {
             try? await Task.sleep(nanoseconds: intervalNS)
             if Task.isCancelled { break }

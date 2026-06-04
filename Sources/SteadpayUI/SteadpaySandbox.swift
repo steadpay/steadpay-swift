@@ -25,6 +25,7 @@ public struct SteadpaySandbox<Content: View>: View {
             customerId: "cus_sandbox",
             publishableKey: "pk_test_sandbox",
             apiBase: "https://example.com",
+            forcedStatus: forcedStatus,
             lockoutScreen: lockoutScreen,
             warningBanner: warningBanner
         ) {
