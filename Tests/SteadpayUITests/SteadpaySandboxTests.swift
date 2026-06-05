@@ -65,13 +65,43 @@ final class SteadpaySandboxTests: XCTestCase {
         XCTAssertLessThanOrEqual(model.log.count, 5)
     }
 
-    func testOnRecoveredNeverFiresFromSandbox() {
+    func testOnRecoveredNeverFires_onActiveFiresInstead() {
         let model = SandboxViewModel()
-        var recoveredFired = false
-        // onRecovered is not exposed by SandboxViewModel intentionally
+        var activeFired = false
+        // Sandbox always passes isRecoveryPath=false, so lockout→active fires onActive not onRecovered
+        model.onActive = { activeFired = true }
         model.changeStatus(.lockout)
         model.changeStatus(.active)
-        XCTAssertFalse(recoveredFired)
+        XCTAssertTrue(activeFired)
+        // SandboxViewModel intentionally exposes no onRecovered property
+    }
+
+    func testErrorPillIsNoOpWhenAlreadyInErrorState() {
+        let model = SandboxViewModel()
+        var errorCount = 0
+        model.onError = { _ in errorCount += 1 }
+        model.changeStatus(.error)
+        model.changeStatus(.error)
+        model.changeStatus(.error)
+        XCTAssertEqual(errorCount, 1)
+        XCTAssertEqual(model.log.filter { $0.contains("onError") }.count, 1)
+    }
+
+    func testDismissWarningHidesBanner() {
+        let model = SandboxViewModel()
+        model.changeStatus(.warning)
+        XCTAssertFalse(model.isDismissed)
+        model.dismissWarning()
+        XCTAssertTrue(model.isDismissed)
+    }
+
+    func testDismissedResetOnStatusChange() {
+        let model = SandboxViewModel()
+        model.changeStatus(.warning)
+        model.dismissWarning()
+        XCTAssertTrue(model.isDismissed)
+        model.changeStatus(.active)
+        XCTAssertFalse(model.isDismissed)
     }
 
     // MARK: - Note string

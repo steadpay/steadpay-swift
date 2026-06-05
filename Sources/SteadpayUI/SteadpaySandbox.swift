@@ -1,21 +1,17 @@
-import Foundation
 import SwiftUI
 import Steadpay
 
-public struct SteadpaySandbox: View {
+public struct SteadpaySandbox<Content: View>: View {
     private let lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)?
     private let warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)?
-    private let content: AnyView
+    private let content: Content
 
     private let onLockout: (() -> Void)?
     private let onWarning: (() -> Void)?
     private let onActive: (() -> Void)?
     private let onError: ((Error) -> Void)?
 
-    @State private var currentStatus: SteadpayStatus = .active
-    @State private var isPanelOpen: Bool = false
-    @State private var log: [String] = []
-    @State private var lastStatus: SteadpayStatus? = .active
+    @StateObject private var model = SandboxViewModel()
 
     public init(
         onLockout: (() -> Void)? = nil,
@@ -24,7 +20,7 @@ public struct SteadpaySandbox: View {
         onError: ((Error) -> Void)? = nil,
         lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)? = nil,
         warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)? = nil,
-        @ViewBuilder content: () -> some View
+        @ViewBuilder content: () -> Content
     ) {
         self.onLockout = onLockout
         self.onWarning = onWarning
@@ -32,15 +28,21 @@ public struct SteadpaySandbox: View {
         self.onError = onError
         self.lockoutScreen = lockoutScreen
         self.warningBanner = warningBanner
-        self.content = AnyView(content())
+        self.content = content()
     }
 
     public var body: some View {
-        ZStack(alignment: .bottomTrailing) {
+        // Update model callbacks on every body eval (non-@Published, no rebuild triggered)
+        model.onLockout = onLockout
+        model.onWarning = onWarning
+        model.onActive = onActive
+        model.onError = onError
+
+        return ZStack(alignment: .bottomTrailing) {
             gateContent
             devBadge
         }
-        .sheet(isPresented: $isPanelOpen) {
+        .sheet(isPresented: $model.isPanelOpen) {
             sheetContent
                 .presentationDetents([.fraction(0.4)])
         }
@@ -48,7 +50,7 @@ public struct SteadpaySandbox: View {
 
     @ViewBuilder
     private var gateContent: some View {
-        if currentStatus == .lockout {
+        if model.currentStatus == .lockout {
             if let builder = lockoutScreen {
                 builder({}, nil)
             } else {
@@ -57,11 +59,11 @@ public struct SteadpaySandbox: View {
         } else {
             ZStack(alignment: .top) {
                 content
-                if currentStatus == .warning {
+                if model.currentStatus == .warning && !model.isDismissed {
                     if let builder = warningBanner {
-                        builder({}, {})
+                        builder({}, model.dismissWarning)
                     } else {
-                        WarningBanner(onTriggerCardUpdate: {}, onDismiss: {})
+                        WarningBanner(onTriggerCardUpdate: {}, onDismiss: model.dismissWarning)
                     }
                 }
             }
@@ -70,7 +72,7 @@ public struct SteadpaySandbox: View {
 
     private var devBadge: some View {
         Button {
-            isPanelOpen = true
+            model.isPanelOpen = true
         } label: {
             Text("DEV")
                 .font(.system(size: 11, design: .monospaced).weight(.semibold))
@@ -95,7 +97,7 @@ public struct SteadpaySandbox: View {
                     .foregroundStyle(.secondary)
                     .kerning(1)
                 Spacer()
-                Text(currentStatus.rawValue)
+                Text(model.currentStatus.rawValue)
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
@@ -103,14 +105,15 @@ public struct SteadpaySandbox: View {
             HStack(spacing: 8) {
                 ForEach([SteadpayStatus.active, .warning, .lockout, .error], id: \.self) { s in
                     Button {
-                        changeStatus(s)
+                        model.changeStatus(s)
                     } label: {
                         Text(s.rawValue)
-                            .font(.system(size: 12, weight: currentStatus == s ? .bold : .medium))
-                            .foregroundStyle(currentStatus == s ? Color.black : Color.secondary)
+                            .font(.system(size: 12,
+                                          weight: model.currentStatus == s ? .bold : .medium))
+                            .foregroundStyle(model.currentStatus == s ? Color.black : Color.secondary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(currentStatus == s ? pillColor(s) : Color.clear)
+                            .background(model.currentStatus == s ? pillColor(s) : Color.clear)
                             .overlay(Capsule().stroke(Color.secondary.opacity(0.3)))
                             .clipShape(Capsule())
                     }
@@ -119,9 +122,9 @@ public struct SteadpaySandbox: View {
                 }
             }
 
-            if !log.isEmpty {
+            if !model.log.isEmpty {
                 VStack(alignment: .leading, spacing: 2) {
-                    ForEach(Array(log.enumerated()), id: \.offset) { i, entry in
+                    ForEach(Array(model.log.enumerated()), id: \.offset) { i, entry in
                         Text("\(i == 0 ? "▶" : " ") \(entry)")
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundStyle(i == 0 ? Color.green : Color.secondary)
@@ -137,39 +140,6 @@ public struct SteadpaySandbox: View {
             Spacer()
         }
         .padding(16)
-    }
-
-    private func changeStatus(_ next: SteadpayStatus) {
-        if next == .error {
-            let err = NSError(
-                domain: "SteadpaySandbox", code: 0,
-                userInfo: [NSLocalizedDescriptionKey: "sandbox_error"]
-            )
-            onError?(err)
-            var newLog = log
-            newLog.insert("onError(sandbox_error)", at: 0)
-            if newLog.count > 5 { newLog.removeLast() }
-            log = newLog
-            currentStatus = .error
-            lastStatus = .error
-            return
-        }
-
-        let cbName = computeTransition(lastStatus: lastStatus, newStatus: next, isRecoveryPath: false)
-        currentStatus = next
-        lastStatus = next
-
-        guard let cbName else { return }
-        switch cbName {
-        case .onLockout: onLockout?()
-        case .onWarning: onWarning?()
-        case .onActive: onActive?()
-        case .onRecovered: break
-        }
-        var newLog = log
-        newLog.insert("\(cbName)()", at: 0)
-        if newLog.count > 5 { newLog.removeLast() }
-        log = newLog
     }
 
     private func pillColor(_ status: SteadpayStatus) -> Color {
