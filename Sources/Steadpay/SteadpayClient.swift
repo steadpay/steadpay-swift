@@ -58,7 +58,7 @@ public final class SteadpayClient: ObservableObject {
     }
 
     public func triggerCardUpdate() {
-        guard let url = cardUpdateUrl else { return }
+        guard let url = cardUpdateUrl, url.scheme == "https" else { return }
         isRecoveryPath = true
         dismissed = false
         urlOpener(url)
