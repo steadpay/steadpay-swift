@@ -172,7 +172,6 @@ final class SteadpayClientTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 2.0)
         XCTAssertNotNil(capturedError)
     }
-}
 
     // MARK: — security
 
