@@ -14,6 +14,10 @@ public struct SteadpayConfig {
         publishableKey: String,
         pollInterval: TimeInterval = 600
     ) {
+        precondition(apiBase.hasPrefix("https://"), "apiBase must start with https://")
+        precondition(!tenantSlug.isEmpty, "tenantSlug must not be empty")
+        precondition(!customerId.isEmpty, "customerId must not be empty")
+        precondition(publishableKey.hasPrefix("pk_"), "publishableKey must start with pk_")
         self.apiBase = apiBase
         self.tenantSlug = tenantSlug
         self.customerId = customerId

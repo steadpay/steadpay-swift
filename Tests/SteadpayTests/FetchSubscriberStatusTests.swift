@@ -143,4 +143,23 @@ final class FetchSubscriberStatusTests: XCTestCase {
         XCTAssertTrue(capturedURL?.path.contains("/api/subscriber-status/\(TENANT)") ?? false)
         XCTAssertTrue(capturedURL?.query?.contains("stripe_customer_id=\(CUSTOMER)") ?? false)
     }
+
+    func testRequestTimeoutIsSet() async throws {
+        var capturedRequest: URLRequest?
+        MockURLProtocol.requestHandler = { request in
+            capturedRequest = request
+            return try self.mockResponse(status: 200, body: [
+                "status": "active",
+                "entitlements": ["powered_by_watermark": false, "custom_domain": false, "downstream_webhooks": false],
+                "card_update_url": NSNull()
+            ])(request)
+        }
+
+        _ = try await fetchSubscriberStatus(
+            baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
+            publishableKey: KEY, session: .mock
+        )
+
+        XCTAssertEqual(capturedRequest?.timeoutInterval, 10)
+    }
 }

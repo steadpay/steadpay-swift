@@ -21,6 +21,7 @@ public func fetchSubscriberStatus(
     }
 
     var request = URLRequest(url: url)
+    request.timeoutInterval = 10
     request.setValue("Bearer \(publishableKey)", forHTTPHeaderField: "Authorization")
 
     let (data, response) = try await session.data(for: request)
