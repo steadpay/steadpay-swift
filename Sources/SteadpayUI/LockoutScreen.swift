@@ -3,10 +3,14 @@ import Steadpay
 
 public struct LockoutScreen: View {
     let poweredByWatermark: Bool
+    let message: String
+    let cta: String
     let onTriggerCardUpdate: () -> Void
 
-    public init(poweredByWatermark: Bool, onTriggerCardUpdate: @escaping () -> Void) {
+    public init(poweredByWatermark: Bool, message: String, cta: String, onTriggerCardUpdate: @escaping () -> Void) {
         self.poweredByWatermark = poweredByWatermark
+        self.message = message
+        self.cta = cta
         self.onTriggerCardUpdate = onTriggerCardUpdate
     }
 
@@ -26,7 +30,7 @@ public struct LockoutScreen: View {
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 12)
 
-                Text("Your subscription is paused.\nUpdate your card to continue.")
+                Text(message)
                     .font(.system(size: 15))
                     .foregroundColor(Color(white: 0.53))
                     .multilineTextAlignment(.center)
@@ -34,7 +38,7 @@ public struct LockoutScreen: View {
                     .padding(.bottom, 40)
 
                 Button(action: onTriggerCardUpdate) {
-                    Text("Update payment method")
+                    Text(cta)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)

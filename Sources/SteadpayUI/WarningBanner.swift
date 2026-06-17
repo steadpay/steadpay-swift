@@ -1,12 +1,14 @@
 import SwiftUI
 import Steadpay
 
+// No card-update CTA in warning state (#041): warning is only reachable via soft
+// decline, where retrying — not re-entering card details — is the resolution path.
 public struct WarningBanner: View {
-    let onTriggerCardUpdate: () -> Void
+    let message: String
     let onDismiss: () -> Void
 
-    public init(onTriggerCardUpdate: @escaping () -> Void, onDismiss: @escaping () -> Void) {
-        self.onTriggerCardUpdate = onTriggerCardUpdate
+    public init(message: String, onDismiss: @escaping () -> Void) {
+        self.message = message
         self.onDismiss = onDismiss
     }
 
@@ -21,24 +23,16 @@ public struct WarningBanner: View {
                         .foregroundColor(.black)
                 )
 
-            Text("Please update your payment method to avoid interruption.")
+            Text(message)
                 .font(.system(size: 13))
                 .foregroundColor(Color(white: 0.83))
-                .lineLimit(2)
+                .lineLimit(3)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            HStack(spacing: 14) {
-                Button(action: onTriggerCardUpdate) {
-                    Text("Update now")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color(red: 0.96, green: 0.62, blue: 0.04))
-                }
-
-                Button(action: onDismiss) {
-                    Text("✕")
-                        .font(.system(size: 14))
-                        .foregroundColor(Color(white: 0.4))
-                }
+            Button(action: onDismiss) {
+                Text("✕")
+                    .font(.system(size: 14))
+                    .foregroundColor(Color(white: 0.4))
             }
         }
         .padding(.horizontal, 16)

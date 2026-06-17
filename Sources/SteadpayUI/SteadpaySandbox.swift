@@ -2,8 +2,8 @@ import SwiftUI
 import Steadpay
 
 public struct SteadpaySandbox<Content: View>: View {
-    private let lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)?
-    private let warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)?
+    private let lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?
+    private let warningBanner: ((@escaping () -> Void, String) -> AnyView)?
     private let content: Content
 
     private let onLockout: (() -> Void)?
@@ -18,8 +18,8 @@ public struct SteadpaySandbox<Content: View>: View {
         onWarning: (() -> Void)? = nil,
         onActive: (() -> Void)? = nil,
         onError: ((Error) -> Void)? = nil,
-        lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)? = nil,
-        warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)? = nil,
+        lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)? = nil,
+        warningBanner: ((@escaping () -> Void, String) -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.onLockout = onLockout
@@ -50,20 +50,35 @@ public struct SteadpaySandbox<Content: View>: View {
 
     @ViewBuilder
     private var gateContent: some View {
+        let locale = resolveLocale(Locale.current.identifier)
         if model.currentStatus == .lockout {
+            let copy = lockoutCopy(
+                EnforcementContext(declineCategory: "card_issue", lockoutReason: "hard_decline"),
+                locale: locale
+            )
             if let builder = lockoutScreen {
-                builder({}, nil)
+                builder({}, nil, copy.message, copy.cta ?? "")
             } else {
-                LockoutScreen(poweredByWatermark: true, onTriggerCardUpdate: {})
+                LockoutScreen(
+                    poweredByWatermark: true,
+                    message: copy.message,
+                    cta: copy.cta ?? "",
+                    onTriggerCardUpdate: {}
+                )
             }
         } else {
+            let sampleRetryAt = ISO8601DateFormatter().string(from: Date().addingTimeInterval(3 * 24 * 60 * 60))
+            let message = warningCopy(
+                EnforcementContext(declineCategory: "insufficient_funds", nextRetryAt: sampleRetryAt),
+                locale: locale
+            ).message
             ZStack(alignment: .top) {
                 content
                 if model.currentStatus == .warning && !model.isDismissed {
                     if let builder = warningBanner {
-                        builder({}, model.dismissWarning)
+                        builder(model.dismissWarning, message)
                     } else {
-                        WarningBanner(onTriggerCardUpdate: {}, onDismiss: model.dismissWarning)
+                        WarningBanner(message: message, onDismiss: model.dismissWarning)
                     }
                 }
             }

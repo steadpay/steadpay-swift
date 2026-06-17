@@ -10,16 +10,16 @@ import AppKit
 private struct SteadpayGateCore: View {
     @StateObject private var client: SteadpayClient
 
-    private let lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)?
-    private let warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)?
+    private let lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?
+    private let warningBanner: ((@escaping () -> Void, String) -> AnyView)?
     private let content: AnyView
 
     init(
         config: SteadpayConfig,
         callbacks: SteadpayCallbacks?,
         forcedStatus: SteadpayStatus?,
-        lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)?,
-        warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)?,
+        lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?,
+        warningBanner: ((@escaping () -> Void, String) -> AnyView)?,
         content: AnyView
     ) {
         let opener: URLOpener = { url in
@@ -45,11 +45,14 @@ private struct SteadpayGateCore: View {
     var body: some View {
         Group {
             if client.status == .lockout {
+                let copy = lockoutCopy(client.enforcementContext, locale: client.locale)
                 if let builder = lockoutScreen {
-                    builder(client.triggerCardUpdate, client.entitlements)
+                    builder(client.triggerCardUpdate, client.entitlements, copy.message, copy.cta ?? "")
                 } else {
                     LockoutScreen(
                         poweredByWatermark: client.entitlements?.poweredByWatermark ?? true,
+                        message: copy.message,
+                        cta: copy.cta ?? "",
                         onTriggerCardUpdate: client.triggerCardUpdate
                     )
                 }
@@ -57,11 +60,12 @@ private struct SteadpayGateCore: View {
                 ZStack(alignment: .top) {
                     content
                     if client.status == .warning && !client.dismissed {
+                        let message = warningCopy(client.enforcementContext, locale: client.locale).message
                         if let builder = warningBanner {
-                            builder(client.triggerCardUpdate, client.dismissWarning)
+                            builder(client.dismissWarning, message)
                         } else {
                             WarningBanner(
-                                onTriggerCardUpdate: client.triggerCardUpdate,
+                                message: message,
                                 onDismiss: client.dismissWarning
                             )
                         }
@@ -82,8 +86,8 @@ public struct SteadpayGate<Content: View>: View {
     private let pollInterval: TimeInterval
     private let forcedStatus: SteadpayStatus?
     private let callbacks: SteadpayCallbacks?
-    private let lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)?
-    private let warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)?
+    private let lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?
+    private let warningBanner: ((@escaping () -> Void, String) -> AnyView)?
     private let content: Content
 
     public init(
@@ -94,8 +98,8 @@ public struct SteadpayGate<Content: View>: View {
         pollInterval: TimeInterval = 600,
         forcedStatus: SteadpayStatus? = nil,
         callbacks: SteadpayCallbacks? = nil,
-        lockoutScreen: ((@escaping () -> Void, Entitlements?) -> AnyView)? = nil,
-        warningBanner: ((@escaping () -> Void, @escaping () -> Void) -> AnyView)? = nil,
+        lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)? = nil,
+        warningBanner: ((@escaping () -> Void, String) -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.tenantSlug = tenantSlug

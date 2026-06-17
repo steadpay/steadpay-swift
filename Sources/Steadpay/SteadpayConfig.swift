@@ -6,13 +6,16 @@ public struct SteadpayConfig {
     public let customerId: String
     public let publishableKey: String
     public let pollInterval: TimeInterval
+    /// Override the language for enforcement copy. Defaults to the device locale.
+    public let locale: String?
 
     public init(
         apiBase: String,
         tenantSlug: String,
         customerId: String,
         publishableKey: String,
-        pollInterval: TimeInterval = 600
+        pollInterval: TimeInterval = 600,
+        locale: String? = nil
     ) {
         precondition(apiBase.hasPrefix("https://"), "apiBase must start with https://")
         precondition(!tenantSlug.isEmpty, "tenantSlug must not be empty")
@@ -23,5 +26,6 @@ public struct SteadpayConfig {
         self.customerId = customerId
         self.publishableKey = publishableKey
         self.pollInterval = pollInterval
+        self.locale = locale
     }
 }

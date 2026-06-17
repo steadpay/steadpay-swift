@@ -44,6 +44,10 @@ public func fetchSubscriberStatus(
             customDomain: json.entitlements.custom_domain,
             downstreamWebhooks: json.entitlements.downstream_webhooks
         ),
-        cardUpdateUrl: json.card_update_url.flatMap { URL(string: $0) }
+        cardUpdateUrl: json.card_update_url.flatMap { URL(string: $0) },
+        declineCategory: json.decline_category,
+        nextRetryAt: json.next_retry_at,
+        isFinalRetry: json.is_final_retry ?? false,
+        lockoutReason: json.lockout_reason
     )
 }

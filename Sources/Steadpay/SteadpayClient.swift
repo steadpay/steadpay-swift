@@ -10,6 +10,11 @@ public final class SteadpayClient: ObservableObject {
     @Published public private(set) var cardUpdateUrl: URL? = nil
     @Published public private(set) var entitlements: Entitlements? = nil
     @Published public private(set) var dismissed: Bool = false
+    /// Context-aware copy signals (#041) for the current decline situation.
+    @Published public private(set) var enforcementContext: EnforcementContext = EnforcementContext()
+
+    /// Resolved enforcement copy language (en/fr/es/de).
+    public let locale: String
 
     private let config: SteadpayConfig
     private var callbacks: SteadpayCallbacks?
@@ -32,6 +37,7 @@ public final class SteadpayClient: ObservableObject {
         self.callbacks = callbacks
         self.forcedStatus = forcedStatus
         self.urlOpener = urlOpener
+        self.locale = resolveLocale(config.locale ?? Locale.current.identifier)
         self.fetch = fetch ?? { apiBase, tenantSlug, customerId, publishableKey in
             try await fetchSubscriberStatus(
                 baseURL: apiBase,
@@ -47,6 +53,16 @@ public final class SteadpayClient: ObservableObject {
             status = forced
             cardUpdateUrl = URL(string: "https://example.com/update-card?forced=1")
             entitlements = Entitlements(poweredByWatermark: true, customDomain: true, downstreamWebhooks: true)
+            // Sample context so the sandbox renders representative copy.
+            let sampleRetryAt = ISO8601DateFormatter().string(from: Date().addingTimeInterval(3 * 24 * 60 * 60))
+            switch forced {
+            case .warning:
+                enforcementContext = EnforcementContext(declineCategory: "insufficient_funds", nextRetryAt: sampleRetryAt)
+            case .lockout:
+                enforcementContext = EnforcementContext(declineCategory: "card_issue", lockoutReason: "hard_decline")
+            default:
+                enforcementContext = EnforcementContext()
+            }
             return
         }
         startPolling()
@@ -113,6 +129,7 @@ public final class SteadpayClient: ObservableObject {
             status = response.status
             cardUpdateUrl = response.cardUpdateUrl
             entitlements = response.entitlements
+            enforcementContext = response.enforcementContext
             lastStatus = response.status
 
             if let cb = cbName { fireCallback(cb) }
