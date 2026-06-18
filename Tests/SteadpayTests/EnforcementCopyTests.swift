@@ -2,7 +2,8 @@ import XCTest
 @testable import Steadpay
 
 final class EnforcementCopyTests: XCTestCase {
-    let iso = "2026-06-20T12:00:00Z"
+    // Use the real wire format: JS Date.toISOString() always emits fractional seconds.
+    let iso = "2026-06-20T12:00:00.000Z"
     let d = "June 20, 2026"
 
     func ctx(
@@ -32,6 +33,11 @@ final class EnforcementCopyTests: XCTestCase {
         XCTAssertEqual(formatRetryDate(iso, locale: "de"), "20. Juni 2026")
         XCTAssertEqual(formatRetryDate(nil, locale: "en"), "")
         XCTAssertEqual(formatRetryDate("not-a-date", locale: "en"), "")
+    }
+
+    func testFormatRetryDatePinnsUTC() {
+        // T01:00:00.000Z is still June 20 UTC but June 19 in any UTC− zone.
+        XCTAssertEqual(formatRetryDate("2026-06-20T01:00:00.000Z", locale: "en"), "June 20, 2026")
     }
 
     func testWarningCopyHasNoCta() {

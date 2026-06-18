@@ -50,8 +50,13 @@ public func resolveLocale(_ locale: String?) -> String {
 /// calendar date is used so the rendered day is deterministic across devices.
 public func formatRetryDate(_ iso: String?, locale: String) -> String {
     guard let iso, !iso.isEmpty else { return "" }
-    let parser = ISO8601DateFormatter()
-    guard let date = parser.date(from: iso) else { return "" }
+    // Backend serialises via JS Date.toISOString() which always emits fractional
+    // seconds (.000Z). Try with fractional seconds first; fall back for any
+    // bare-second literal that comes in from tests or other callers.
+    let parserMs = ISO8601DateFormatter()
+    parserMs.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    let parserPlain = ISO8601DateFormatter()
+    guard let date = parserMs.date(from: iso) ?? parserPlain.date(from: iso) else { return "" }
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: resolveLocale(locale))
     formatter.timeZone = TimeZone(identifier: "UTC")

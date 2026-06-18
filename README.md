@@ -48,8 +48,8 @@ When billing is current, `YourApp` renders normally. In `warning` state a dismis
 | `pollInterval` | `TimeInterval` | | `600` |
 | `forcedStatus` | `SteadpayStatus?` | | `nil` |
 | `callbacks` | `SteadpayCallbacks?` | | `nil` |
-| `lockoutScreen` | `((@escaping () -> Void, Entitlements?) -> AnyView)?` | | built-in |
-| `warningBanner` | `((@escaping () -> Void, @escaping () -> Void) -> AnyView)?` | | built-in |
+| `lockoutScreen` | `((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?` | | built-in |
+| `warningBanner` | `((@escaping () -> Void, String) -> AnyView)?` | | built-in |
 | `content` | `@ViewBuilder` | ✓ | — |
 
 ## Callbacks
@@ -78,11 +78,11 @@ Wrap your custom views in `AnyView(...)`:
 ```swift
 SteadpayGate(
     // ...
-    lockoutScreen: { triggerCardUpdate, _ in
-        AnyView(MyBrandedLockout(onUpdate: triggerCardUpdate))
+    lockoutScreen: { triggerCardUpdate, _, message, cta in
+        AnyView(MyBrandedLockout(message: message, cta: cta, onUpdate: triggerCardUpdate))
     },
-    warningBanner: { triggerCardUpdate, dismissWarning in
-        AnyView(MyBrandedBanner(onUpdate: triggerCardUpdate, onDismiss: dismissWarning))
+    warningBanner: { dismissWarning, message in
+        AnyView(MyBrandedBanner(message: message, onDismiss: dismissWarning))
     }
 ) {
     YourApp()
@@ -130,11 +130,11 @@ The sandbox accepts custom `lockoutScreen` and `warningBanner` overrides — pas
 
 ```swift
 SteadpaySandbox(
-    lockoutScreen: { triggerCardUpdate, _ in
-        AnyView(MyBrandedLockout(onUpdate: triggerCardUpdate))
+    lockoutScreen: { triggerCardUpdate, _, message, cta in
+        AnyView(MyBrandedLockout(message: message, cta: cta, onUpdate: triggerCardUpdate))
     },
-    warningBanner: { triggerCardUpdate, dismissWarning in
-        AnyView(MyBrandedBanner(onUpdate: triggerCardUpdate, onDismiss: dismissWarning))
+    warningBanner: { dismissWarning, message in
+        AnyView(MyBrandedBanner(message: message, onDismiss: dismissWarning))
     }
 ) {
     YourApp()
