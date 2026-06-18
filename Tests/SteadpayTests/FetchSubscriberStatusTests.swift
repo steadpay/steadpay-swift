@@ -36,6 +36,54 @@ final class FetchSubscriberStatusTests: XCTestCase {
         XCTAssertEqual(result.cardUpdateUrl, URL(string: "https://app.steadpay.io/update-card"))
     }
 
+    func testParsesContextAwareCopyFields() async throws {
+        MockURLProtocol.requestHandler = try mockResponse(status: 200, body: [
+            "status": "warning",
+            "entitlements": [
+                "powered_by_watermark": true,
+                "custom_domain": false,
+                "downstream_webhooks": false
+            ],
+            "card_update_url": "https://app.steadpay.io/update-card",
+            "decline_category": "insufficient_funds",
+            "next_retry_at": "2026-06-20T12:00:00Z",
+            "is_final_retry": true,
+            "lockout_reason": NSNull()
+        ])
+
+        let result = try await fetchSubscriberStatus(
+            baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
+            publishableKey: KEY, session: .mock
+        )
+
+        XCTAssertEqual(result.declineCategory, "insufficient_funds")
+        XCTAssertEqual(result.nextRetryAt, "2026-06-20T12:00:00Z")
+        XCTAssertTrue(result.isFinalRetry)
+        XCTAssertNil(result.lockoutReason)
+    }
+
+    func testContextFieldsDefaultWhenAbsent() async throws {
+        MockURLProtocol.requestHandler = try mockResponse(status: 200, body: [
+            "status": "active",
+            "entitlements": [
+                "powered_by_watermark": true,
+                "custom_domain": false,
+                "downstream_webhooks": false
+            ],
+            "card_update_url": "https://app.steadpay.io/update-card"
+        ])
+
+        let result = try await fetchSubscriberStatus(
+            baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
+            publishableKey: KEY, session: .mock
+        )
+
+        XCTAssertNil(result.declineCategory)
+        XCTAssertNil(result.nextRetryAt)
+        XCTAssertFalse(result.isFinalRetry)
+        XCTAssertNil(result.lockoutReason)
+    }
+
     func testReturnsFailOpenActiveOn402() async throws {
         MockURLProtocol.requestHandler = try mockResponse(status: 402, body: [:])
 
