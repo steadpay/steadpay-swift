@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 public typealias URLOpener = (URL) -> Void
-public typealias FetchFunction = (String, String, String, String) async throws -> StatusResponse
+public typealias FetchFunction = (String, String, String, String, String) async throws -> StatusResponse
 
 @MainActor
 public final class SteadpayClient: ObservableObject {
@@ -38,12 +38,13 @@ public final class SteadpayClient: ObservableObject {
         self.forcedStatus = forcedStatus
         self.urlOpener = urlOpener
         self.locale = resolveLocale(config.locale ?? Locale.current.identifier)
-        self.fetch = fetch ?? { apiBase, tenantSlug, customerId, publishableKey in
+        self.fetch = fetch ?? { apiBase, tenantSlug, customerId, publishableKey, hmac in
             try await fetchSubscriberStatus(
                 baseURL: apiBase,
                 tenantSlug: tenantSlug,
                 customerId: customerId,
-                publishableKey: publishableKey
+                publishableKey: publishableKey,
+                hmac: hmac
             )
         }
     }
@@ -117,7 +118,8 @@ public final class SteadpayClient: ObservableObject {
                 config.apiBase,
                 config.tenantSlug,
                 config.customerId,
-                config.publishableKey
+                config.publishableKey,
+                config.hmac
             )
 
             let cbName = computeTransition(

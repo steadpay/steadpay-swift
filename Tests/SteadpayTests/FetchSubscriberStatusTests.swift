@@ -6,6 +6,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
     let TENANT = "acme"
     let CUSTOMER = "cus_123"
     let KEY = "pk_live_abc"
+    let HMAC = "hmac_test_abc"
 
     private func mockResponse(status: Int, body: [String: Any]) throws -> (URLRequest) throws -> (HTTPURLResponse, Data) {
         return { request in
@@ -28,7 +29,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
 
         let result = try await fetchSubscriberStatus(
             baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-            publishableKey: KEY, session: .mock
+            publishableKey: KEY, hmac: HMAC, session: .mock
         )
 
         XCTAssertEqual(result.status, .active)
@@ -53,7 +54,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
 
         let result = try await fetchSubscriberStatus(
             baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-            publishableKey: KEY, session: .mock
+            publishableKey: KEY, hmac: HMAC, session: .mock
         )
 
         XCTAssertEqual(result.declineCategory, "insufficient_funds")
@@ -75,7 +76,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
 
         let result = try await fetchSubscriberStatus(
             baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-            publishableKey: KEY, session: .mock
+            publishableKey: KEY, hmac: HMAC, session: .mock
         )
 
         XCTAssertNil(result.declineCategory)
@@ -89,7 +90,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
 
         let result = try await fetchSubscriberStatus(
             baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-            publishableKey: KEY, session: .mock
+            publishableKey: KEY, hmac: HMAC, session: .mock
         )
 
         XCTAssertEqual(result.status, .active)
@@ -166,7 +167,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
 
         _ = try await fetchSubscriberStatus(
             baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-            publishableKey: KEY, session: .mock
+            publishableKey: KEY, hmac: HMAC, session: .mock
         )
 
         XCTAssertEqual(capturedRequest?.value(forHTTPHeaderField: "Authorization"), "Bearer \(KEY)")
@@ -185,7 +186,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
 
         _ = try await fetchSubscriberStatus(
             baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-            publishableKey: KEY, session: .mock
+            publishableKey: KEY, hmac: HMAC, session: .mock
         )
 
         XCTAssertTrue(capturedURL?.path.contains("/api/subscriber-status/\(TENANT)") ?? false)
@@ -205,9 +206,28 @@ final class FetchSubscriberStatusTests: XCTestCase {
 
         _ = try await fetchSubscriberStatus(
             baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-            publishableKey: KEY, session: .mock
+            publishableKey: KEY, hmac: HMAC, session: .mock
         )
 
         XCTAssertEqual(capturedRequest?.timeoutInterval, 10)
+    }
+
+    func testSendsHmacQueryParam() async throws {
+        var capturedURL: URL?
+        MockURLProtocol.requestHandler = { request in
+            capturedURL = request.url
+            return try self.mockResponse(status: 200, body: [
+                "status": "active",
+                "entitlements": ["powered_by_watermark": false, "custom_domain": false, "downstream_webhooks": false],
+                "card_update_url": NSNull()
+            ])(request)
+        }
+
+        _ = try await fetchSubscriberStatus(
+            baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
+            publishableKey: KEY, hmac: HMAC, session: .mock
+        )
+
+        XCTAssertTrue(capturedURL?.query?.contains("hmac=\(HMAC)") ?? false)
     }
 }
