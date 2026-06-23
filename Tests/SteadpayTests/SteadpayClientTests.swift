@@ -11,6 +11,7 @@ final class SteadpayClientTests: XCTestCase {
             tenantSlug: "acme",
             customerId: "cus_123",
             publishableKey: "pk_live_abc",
+            hmac: "hmac_test_abc",
             pollInterval: pollInterval
         )
     }
@@ -26,14 +27,14 @@ final class SteadpayClientTests: XCTestCase {
     // MARK: — initial state
 
     func testInitialStatusIsLoading() {
-        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _ in
+        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
         XCTAssertEqual(client.status, .loading)
     }
 
     func testInitialDismissedIsFalse() {
-        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _ in
+        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
         XCTAssertFalse(client.dismissed)
@@ -43,7 +44,7 @@ final class SteadpayClientTests: XCTestCase {
 
     func testForcedStatusBypassesPolling() async {
         var fetchCalled = false
-        let client = SteadpayClient(config: makeConfig(), forcedStatus: .lockout, fetch: { _, _, _, _ in
+        let client = SteadpayClient(config: makeConfig(), forcedStatus: .lockout, fetch: { _, _, _, _, _ in
             fetchCalled = true
             return self.makeResponse(.active)
         })
@@ -53,7 +54,7 @@ final class SteadpayClientTests: XCTestCase {
     }
 
     func testForcedStatusEmitsImmediately() async {
-        let client = SteadpayClient(config: makeConfig(), forcedStatus: .warning, fetch: { _, _, _, _ in
+        let client = SteadpayClient(config: makeConfig(), forcedStatus: .warning, fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
         client.start()
@@ -63,7 +64,7 @@ final class SteadpayClientTests: XCTestCase {
     // MARK: — start() polls and publishes
 
     func testStartPublishesCorrectStatus() async throws {
-        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _ in
+        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
 
@@ -86,7 +87,7 @@ final class SteadpayClientTests: XCTestCase {
     // MARK: — dismissWarning
 
     func testDismissWarningSetsDismissedTrue() {
-        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _ in
+        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
         client.dismissWarning()
@@ -99,7 +100,7 @@ final class SteadpayClientTests: XCTestCase {
         let client = SteadpayClient(
             config: makeConfig(pollInterval: 600),
             urlOpener: { _ in },
-            fetch: { _, _, _, _ in self.makeResponse(.active) }
+            fetch: { _, _, _, _, _ in self.makeResponse(.active) }
         )
 
         // inject a forced cardUpdateUrl via start with forcedStatus
@@ -107,7 +108,7 @@ final class SteadpayClientTests: XCTestCase {
             config: makeConfig(),
             forcedStatus: .lockout,
             urlOpener: { _ in },
-            fetch: { _, _, _, _ in self.makeResponse(.active) }
+            fetch: { _, _, _, _, _ in self.makeResponse(.active) }
         )
         forcedClient.start()
         forcedClient.dismissWarning()
@@ -122,7 +123,7 @@ final class SteadpayClientTests: XCTestCase {
             config: makeConfig(),
             forcedStatus: .lockout,
             urlOpener: { url in openedURL = url },
-            fetch: { _, _, _, _ in self.makeResponse(.active) }
+            fetch: { _, _, _, _, _ in self.makeResponse(.active) }
         )
         client.start()
         client.triggerCardUpdate()
@@ -133,7 +134,7 @@ final class SteadpayClientTests: XCTestCase {
 
     func testStopPreventsPolling() async throws {
         var fetchCallCount = 0
-        let client = SteadpayClient(config: makeConfig(pollInterval: 600), fetch: { _, _, _, _ in
+        let client = SteadpayClient(config: makeConfig(pollInterval: 600), fetch: { _, _, _, _, _ in
             fetchCallCount += 1
             return self.makeResponse(.active)
         })
@@ -154,7 +155,7 @@ final class SteadpayClientTests: XCTestCase {
         let client = SteadpayClient(
             config: makeConfig(),
             callbacks: callbacks,
-            fetch: { _, _, _, _ in throw SteadpayError.unauthorized }
+            fetch: { _, _, _, _, _ in throw SteadpayError.unauthorized }
         )
 
         let expectation = XCTestExpectation(description: "onError fires")
@@ -181,7 +182,7 @@ final class SteadpayClientTests: XCTestCase {
             config: makeConfig(),
             forcedStatus: nil,
             urlOpener: { opened = $0 },
-            fetch: { _, _, _, _ in
+            fetch: { _, _, _, _, _ in
                 StatusResponse(
                     status: .lockout,
                     entitlements: Entitlements(poweredByWatermark: false, customDomain: false, downstreamWebhooks: false),
@@ -208,7 +209,8 @@ final class SteadpayConfigValidationTests: XCTestCase {
             apiBase: "https://app.steadpay.io",
             tenantSlug: "acme",
             customerId: "cus_123",
-            publishableKey: "pk_live_abc"
+            publishableKey: "pk_live_abc",
+            hmac: "hmac_test_abc"
         )
         XCTAssertTrue(true, "Valid config does not trap")
     }

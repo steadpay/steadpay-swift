@@ -11,12 +11,14 @@ public func fetchSubscriberStatus(
     tenantSlug: String,
     customerId: String,
     publishableKey: String,
+    hmac: String,
     session: URLSession = .shared
 ) async throws -> StatusResponse {
     let encodedSlug = tenantSlug.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? tenantSlug
     let encodedCustomer = customerId.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? customerId
+    let encodedHmac = hmac.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? hmac
 
-    guard let url = URL(string: "\(baseURL)/api/subscriber-status/\(encodedSlug)?stripe_customer_id=\(encodedCustomer)") else {
+    guard let url = URL(string: "\(baseURL)/api/subscriber-status/\(encodedSlug)?stripe_customer_id=\(encodedCustomer)&hmac=\(encodedHmac)") else {
         throw SteadpayError.invalidURL
     }
 
