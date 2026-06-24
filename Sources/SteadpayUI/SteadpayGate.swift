@@ -82,6 +82,7 @@ public struct SteadpayGate<Content: View>: View {
     private let tenantSlug: String
     private let customerId: String
     private let publishableKey: String
+    private let hmac: String
     private let apiBase: String
     private let pollInterval: TimeInterval
     private let forcedStatus: SteadpayStatus?
@@ -94,6 +95,7 @@ public struct SteadpayGate<Content: View>: View {
         tenantSlug: String,
         customerId: String,
         publishableKey: String,
+        hmac: String,
         apiBase: String,
         pollInterval: TimeInterval = 600,
         forcedStatus: SteadpayStatus? = nil,
@@ -105,6 +107,7 @@ public struct SteadpayGate<Content: View>: View {
         self.tenantSlug = tenantSlug
         self.customerId = customerId
         self.publishableKey = publishableKey
+        self.hmac = hmac
         self.apiBase = apiBase
         self.pollInterval = pollInterval
         self.forcedStatus = forcedStatus
@@ -121,6 +124,7 @@ public struct SteadpayGate<Content: View>: View {
                 tenantSlug: tenantSlug,
                 customerId: customerId,
                 publishableKey: publishableKey,
+                hmac: hmac,
                 pollInterval: pollInterval
             ),
             callbacks: callbacks,
