@@ -19,7 +19,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      XCODE_VERSION: 16.4.0
+      XCODE_VERSION: 26.5.0
 
     steps:
       - name: Checkout
