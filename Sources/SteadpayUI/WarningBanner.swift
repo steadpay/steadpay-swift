@@ -26,7 +26,7 @@ public struct WarningBanner: View {
             Text(message)
                 .font(.system(size: 13))
                 .foregroundColor(Color(white: 0.83))
-                .lineLimit(3)
+                .lineLimit(4)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Button(action: onDismiss) {

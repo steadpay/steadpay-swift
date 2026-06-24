@@ -47,19 +47,19 @@ final class EnforcementCopyTests: XCTestCase {
     func testWarningCopyVariantsEn() {
         XCTAssertEqual(
             warningCopy(ctx(declineCategory: "insufficient_funds", nextRetryAt: iso), locale: "en").message,
-            "We'll retry on \(d). Please ensure sufficient funds are available.")
+            "Your payment failed. We'll retry on \(d) — please ensure funds are available.")
         XCTAssertEqual(
             warningCopy(ctx(declineCategory: "insufficient_funds", nextRetryAt: iso, isFinalRetry: true), locale: "en").message,
-            "This is our final retry on \(d). Please add funds — your access will be restricted if it fails.")
+            "Your payment failed. Final retry on \(d) — add funds or your access will be restricted.")
         XCTAssertEqual(
             warningCopy(ctx(declineCategory: "bank_hold", nextRetryAt: iso), locale: "en").message,
-            "We'll retry on \(d). You may want to contact your bank.")
+            "Your payment was held by your bank. We'll retry on \(d) — you may want to contact them.")
         XCTAssertEqual(
             warningCopy(ctx(declineCategory: "processing_error", nextRetryAt: iso), locale: "en").message,
-            "There was a temporary processing issue. We'll retry on \(d).")
+            "Your payment failed due to a temporary issue. We'll retry on \(d).")
         XCTAssertEqual(
             warningCopy(ctx(declineCategory: "card_issue", nextRetryAt: iso), locale: "en").message,
-            "We'll retry on \(d), but your saved card may need updating to go through.")
+            "Your payment failed. We'll retry on \(d), but your saved card may need updating.")
     }
 
     func testWarningCopyFallback() {
@@ -71,7 +71,7 @@ final class EnforcementCopyTests: XCTestCase {
     func testWarningCopyLocalized() {
         XCTAssertTrue(
             warningCopy(ctx(declineCategory: "insufficient_funds", nextRetryAt: iso, isFinalRetry: true), locale: "fr")
-                .message.contains("Ceci est notre dernier essai"))
+                .message.contains("Dernier essai"))
     }
 
     func testLockoutCopyEn() {

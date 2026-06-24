@@ -73,59 +73,59 @@ private struct WarningVariant {
 private let warningTable: [String: [String: WarningVariant]] = [
     "en": [
         "insufficient_funds": WarningVariant(
-            normal: "We'll retry on {date}. Please ensure sufficient funds are available.",
-            last: "This is our final retry on {date}. Please add funds — your access will be restricted if it fails."),
+            normal: "Your payment failed. We'll retry on {date} — please ensure funds are available.",
+            last: "Your payment failed. Final retry on {date} — add funds or your access will be restricted."),
         "bank_hold": WarningVariant(
-            normal: "We'll retry on {date}. You may want to contact your bank.",
-            last: "This is our final retry on {date}. Please contact your bank — your access will be restricted if it fails."),
+            normal: "Your payment was held by your bank. We'll retry on {date} — you may want to contact them.",
+            last: "Your payment was held by your bank. Final retry on {date} — contact your bank or your access will be restricted."),
         "processing_error": WarningVariant(
-            normal: "There was a temporary processing issue. We'll retry on {date}.",
-            last: "This is our final retry on {date}. Your access will be restricted if it fails."),
+            normal: "Your payment failed due to a temporary issue. We'll retry on {date}.",
+            last: "Your payment failed. Final retry on {date} — your access will be restricted if it fails."),
         "card_issue": WarningVariant(
-            normal: "We'll retry on {date}, but your saved card may need updating to go through.",
-            last: "This is our final retry on {date}. Your saved card likely needs updating — your access will be restricted if it fails."),
+            normal: "Your payment failed. We'll retry on {date}, but your saved card may need updating.",
+            last: "Your payment failed. Final retry on {date} — update your card or your access will be restricted."),
     ],
     "fr": [
         "insufficient_funds": WarningVariant(
-            normal: "Nous réessaierons le {date}. Veuillez vous assurer que des fonds suffisants sont disponibles.",
-            last: "Ceci est notre dernier essai le {date}. Veuillez ajouter des fonds — votre accès sera restreint en cas d'échec."),
+            normal: "Votre paiement a échoué. Nous réessaierons le {date} — veuillez vous assurer que des fonds suffisants sont disponibles.",
+            last: "Votre paiement a échoué. Dernier essai le {date} — ajoutez des fonds ou votre accès sera restreint."),
         "bank_hold": WarningVariant(
-            normal: "Nous réessaierons le {date}. Vous pouvez contacter votre banque.",
-            last: "Ceci est notre dernier essai le {date}. Veuillez contacter votre banque — votre accès sera restreint en cas d'échec."),
+            normal: "Votre paiement a été bloqué par votre banque. Nous réessaierons le {date} — vous pouvez la contacter.",
+            last: "Votre paiement a été bloqué par votre banque. Dernier essai le {date} — contactez votre banque ou votre accès sera restreint."),
         "processing_error": WarningVariant(
-            normal: "Un problème temporaire de traitement est survenu. Nous réessaierons le {date}.",
-            last: "Ceci est notre dernier essai le {date}. Votre accès sera restreint en cas d'échec."),
+            normal: "Votre paiement a échoué en raison d'un problème temporaire. Nous réessaierons le {date}.",
+            last: "Votre paiement a échoué. Dernier essai le {date} — votre accès sera restreint en cas d'échec."),
         "card_issue": WarningVariant(
-            normal: "Nous réessaierons le {date}, mais votre carte enregistrée devra peut-être être mise à jour.",
-            last: "Ceci est notre dernier essai le {date}. Votre carte enregistrée doit probablement être mise à jour — votre accès sera restreint en cas d'échec."),
+            normal: "Votre paiement a échoué. Nous réessaierons le {date}, mais votre carte enregistrée devra peut-être être mise à jour.",
+            last: "Votre paiement a échoué. Dernier essai le {date} — votre carte doit probablement être mise à jour ou votre accès sera restreint."),
     ],
     "es": [
         "insufficient_funds": WarningVariant(
-            normal: "Volveremos a intentarlo el {date}. Asegúrate de que haya fondos suficientes disponibles.",
-            last: "Este es nuestro último intento el {date}. Añade fondos — tu acceso se restringirá si falla."),
+            normal: "Tu pago falló. Volveremos a intentarlo el {date} — asegúrate de que haya fondos suficientes.",
+            last: "Tu pago falló. Último intento el {date} — añade fondos o tu acceso se restringirá."),
         "bank_hold": WarningVariant(
-            normal: "Volveremos a intentarlo el {date}. Quizás quieras contactar con tu banco.",
-            last: "Este es nuestro último intento el {date}. Contacta con tu banco — tu acceso se restringirá si falla."),
+            normal: "Tu banco retuvo el pago. Volveremos a intentarlo el {date} — quizás quieras contactarles.",
+            last: "Tu banco retuvo el pago. Último intento el {date} — contacta con tu banco o tu acceso se restringirá."),
         "processing_error": WarningVariant(
-            normal: "Hubo un problema temporal de procesamiento. Volveremos a intentarlo el {date}.",
-            last: "Este es nuestro último intento el {date}. Tu acceso se restringirá si falla."),
+            normal: "Tu pago falló por un problema temporal. Volveremos a intentarlo el {date}.",
+            last: "Tu pago falló. Último intento el {date} — tu acceso se restringirá si falla."),
         "card_issue": WarningVariant(
-            normal: "Volveremos a intentarlo el {date}, pero es posible que tu tarjeta guardada deba actualizarse.",
-            last: "Este es nuestro último intento el {date}. Probablemente debas actualizar tu tarjeta guardada — tu acceso se restringirá si falla."),
+            normal: "Tu pago falló. Volveremos a intentarlo el {date}, pero es posible que tu tarjeta guardada deba actualizarse.",
+            last: "Tu pago falló. Último intento el {date} — actualiza tu tarjeta o tu acceso se restringirá."),
     ],
     "de": [
         "insufficient_funds": WarningVariant(
-            normal: "Wir versuchen es am {date} erneut. Bitte stellen Sie sicher, dass ausreichend Guthaben verfügbar ist.",
-            last: "Dies ist unser letzter Versuch am {date}. Bitte laden Sie Guthaben auf — andernfalls wird Ihr Zugang eingeschränkt."),
+            normal: "Ihre Zahlung ist fehlgeschlagen. Wir versuchen es am {date} erneut — bitte stellen Sie sicher, dass ausreichend Guthaben verfügbar ist.",
+            last: "Ihre Zahlung ist fehlgeschlagen. Letzter Versuch am {date} — laden Sie Guthaben auf oder Ihr Zugang wird eingeschränkt."),
         "bank_hold": WarningVariant(
-            normal: "Wir versuchen es am {date} erneut. Sie können sich an Ihre Bank wenden.",
-            last: "Dies ist unser letzter Versuch am {date}. Bitte wenden Sie sich an Ihre Bank — andernfalls wird Ihr Zugang eingeschränkt."),
+            normal: "Ihre Zahlung wurde von Ihrer Bank zurückgehalten. Wir versuchen es am {date} erneut — Sie können sich an Ihre Bank wenden.",
+            last: "Ihre Zahlung wurde von Ihrer Bank zurückgehalten. Letzter Versuch am {date} — wenden Sie sich an Ihre Bank oder Ihr Zugang wird eingeschränkt."),
         "processing_error": WarningVariant(
-            normal: "Es gab ein vorübergehendes Verarbeitungsproblem. Wir versuchen es am {date} erneut.",
-            last: "Dies ist unser letzter Versuch am {date}. Andernfalls wird Ihr Zugang eingeschränkt."),
+            normal: "Ihre Zahlung ist aufgrund eines vorübergehenden Problems fehlgeschlagen. Wir versuchen es am {date} erneut.",
+            last: "Ihre Zahlung ist fehlgeschlagen. Letzter Versuch am {date} — andernfalls wird Ihr Zugang eingeschränkt."),
         "card_issue": WarningVariant(
-            normal: "Wir versuchen es am {date} erneut, aber Ihre gespeicherte Karte muss möglicherweise aktualisiert werden.",
-            last: "Dies ist unser letzter Versuch am {date}. Ihre gespeicherte Karte muss wahrscheinlich aktualisiert werden — andernfalls wird Ihr Zugang eingeschränkt."),
+            normal: "Ihre Zahlung ist fehlgeschlagen. Wir versuchen es am {date} erneut, aber Ihre gespeicherte Karte muss möglicherweise aktualisiert werden.",
+            last: "Ihre Zahlung ist fehlgeschlagen. Letzter Versuch am {date} — aktualisieren Sie Ihre Karte oder Ihr Zugang wird eingeschränkt."),
     ],
 ]
 
