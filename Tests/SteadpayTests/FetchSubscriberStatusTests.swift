@@ -104,7 +104,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
         do {
             _ = try await fetchSubscriberStatus(
                 baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-                publishableKey: KEY, session: .mock
+                publishableKey: KEY, hmac: HMAC, session: .mock
             )
             XCTFail("Expected throw")
         } catch SteadpayError.unauthorized {
@@ -118,7 +118,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
         do {
             _ = try await fetchSubscriberStatus(
                 baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-                publishableKey: KEY, session: .mock
+                publishableKey: KEY, hmac: HMAC, session: .mock
             )
             XCTFail("Expected throw")
         } catch SteadpayError.tenantNotFound {
@@ -132,7 +132,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
         do {
             _ = try await fetchSubscriberStatus(
                 baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-                publishableKey: KEY, session: .mock
+                publishableKey: KEY, hmac: HMAC, session: .mock
             )
             XCTFail("Expected throw")
         } catch SteadpayError.unexpectedStatus(let code) {
@@ -146,7 +146,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
         do {
             _ = try await fetchSubscriberStatus(
                 baseURL: BASE_URL, tenantSlug: TENANT, customerId: CUSTOMER,
-                publishableKey: KEY, session: .mock
+                publishableKey: KEY, hmac: HMAC, session: .mock
             )
             XCTFail("Expected throw")
         } catch {
