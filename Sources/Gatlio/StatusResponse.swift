@@ -1,7 +1,7 @@
 import Foundation
 
 public struct StatusResponse {
-    public let status: SteadpayStatus
+    public let status: GatlioStatus
     public let entitlements: Entitlements
     public let cardUpdateUrl: URL?
 
@@ -12,7 +12,7 @@ public struct StatusResponse {
     public let lockoutReason: String?
 
     public init(
-        status: SteadpayStatus,
+        status: GatlioStatus,
         entitlements: Entitlements,
         cardUpdateUrl: URL?,
         declineCategory: String? = nil,

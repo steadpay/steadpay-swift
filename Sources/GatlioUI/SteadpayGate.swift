@@ -1,5 +1,5 @@
 import SwiftUI
-import Steadpay
+import Gatlio
 
 #if canImport(UIKit)
 import UIKit
@@ -7,17 +7,17 @@ import UIKit
 import AppKit
 #endif
 
-private struct SteadpayGateCore: View {
-    @StateObject private var client: SteadpayClient
+private struct GatlioGateCore: View {
+    @StateObject private var client: GatlioClient
 
     private let lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?
     private let warningBanner: ((@escaping () -> Void, String) -> AnyView)?
     private let content: AnyView
 
     init(
-        config: SteadpayConfig,
-        callbacks: SteadpayCallbacks?,
-        forcedStatus: SteadpayStatus?,
+        config: GatlioConfig,
+        callbacks: GatlioCallbacks?,
+        forcedStatus: GatlioStatus?,
         lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?,
         warningBanner: ((@escaping () -> Void, String) -> AnyView)?,
         content: AnyView
@@ -30,7 +30,7 @@ private struct SteadpayGateCore: View {
 #endif
         }
         _client = StateObject(
-            wrappedValue: SteadpayClient(
+            wrappedValue: GatlioClient(
                 config: config,
                 callbacks: callbacks,
                 forcedStatus: forcedStatus,
@@ -78,15 +78,15 @@ private struct SteadpayGateCore: View {
     }
 }
 
-public struct SteadpayGate<Content: View>: View {
+public struct GatlioGate<Content: View>: View {
     private let tenantSlug: String
     private let customerId: String
     private let publishableKey: String
     private let hmac: String
     private let apiBase: String
     private let pollInterval: TimeInterval
-    private let forcedStatus: SteadpayStatus?
-    private let callbacks: SteadpayCallbacks?
+    private let forcedStatus: GatlioStatus?
+    private let callbacks: GatlioCallbacks?
     private let lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?
     private let warningBanner: ((@escaping () -> Void, String) -> AnyView)?
     private let content: Content
@@ -98,8 +98,8 @@ public struct SteadpayGate<Content: View>: View {
         hmac: String,
         apiBase: String,
         pollInterval: TimeInterval = 600,
-        forcedStatus: SteadpayStatus? = nil,
-        callbacks: SteadpayCallbacks? = nil,
+        forcedStatus: GatlioStatus? = nil,
+        callbacks: GatlioCallbacks? = nil,
         lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)? = nil,
         warningBanner: ((@escaping () -> Void, String) -> AnyView)? = nil,
         @ViewBuilder content: () -> Content
@@ -118,8 +118,8 @@ public struct SteadpayGate<Content: View>: View {
     }
 
     public var body: some View {
-        SteadpayGateCore(
-            config: SteadpayConfig(
+        GatlioGateCore(
+            config: GatlioConfig(
                 apiBase: apiBase,
                 tenantSlug: tenantSlug,
                 customerId: customerId,

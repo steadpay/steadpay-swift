@@ -1,11 +1,11 @@
 import SwiftUI
-import SteadpayUI
+import GatlioUI
 
 struct HomeView: View {
     @State private var navigateToSettings = false
 
     var body: some View {
-        SteadpaySandbox(
+        GatlioSandbox(
             onLockout: { print("lockout") },
             onWarning: { print("warning") },
             onActive: { print("active") }

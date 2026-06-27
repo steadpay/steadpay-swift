@@ -5,8 +5,8 @@ public typealias URLOpener = (URL) -> Void
 public typealias FetchFunction = (String, String, String, String, String) async throws -> StatusResponse
 
 @MainActor
-public final class SteadpayClient: ObservableObject {
-    @Published public private(set) var status: SteadpayStatus = .loading
+public final class GatlioClient: ObservableObject {
+    @Published public private(set) var status: GatlioStatus = .loading
     @Published public private(set) var cardUpdateUrl: URL? = nil
     @Published public private(set) var entitlements: Entitlements? = nil
     @Published public private(set) var dismissed: Bool = false
@@ -16,20 +16,20 @@ public final class SteadpayClient: ObservableObject {
     /// Resolved enforcement copy language (en/fr/es/de).
     public let locale: String
 
-    private let config: SteadpayConfig
-    private var callbacks: SteadpayCallbacks?
-    private let forcedStatus: SteadpayStatus?
+    private let config: GatlioConfig
+    private var callbacks: GatlioCallbacks?
+    private let forcedStatus: GatlioStatus?
     private let urlOpener: URLOpener
     private let fetch: FetchFunction
 
     private var pollingTask: Task<Void, Never>?
     private var isRecoveryPath = false
-    private var lastStatus: SteadpayStatus? = nil
+    private var lastStatus: GatlioStatus? = nil
 
     public init(
-        config: SteadpayConfig,
-        callbacks: SteadpayCallbacks? = nil,
-        forcedStatus: SteadpayStatus? = nil,
+        config: GatlioConfig,
+        callbacks: GatlioCallbacks? = nil,
+        forcedStatus: GatlioStatus? = nil,
         urlOpener: @escaping URLOpener = { _ in },
         fetch: FetchFunction? = nil
     ) {

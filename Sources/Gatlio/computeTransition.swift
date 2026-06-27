@@ -3,8 +3,8 @@ public enum CallbackName: Equatable {
 }
 
 public func computeTransition(
-    lastStatus: SteadpayStatus?,
-    newStatus: SteadpayStatus,
+    lastStatus: GatlioStatus?,
+    newStatus: GatlioStatus,
     isRecoveryPath: Bool
 ) -> CallbackName? {
     guard lastStatus != newStatus else { return nil }

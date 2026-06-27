@@ -1,13 +1,13 @@
 import XCTest
 import Combine
-@testable import Steadpay
+@testable import Gatlio
 
 @MainActor
-final class SteadpayClientTests: XCTestCase {
+final class GatlioClientTests: XCTestCase {
 
-    private func makeConfig(pollInterval: TimeInterval = 600) -> SteadpayConfig {
-        SteadpayConfig(
-            apiBase: "https://app.steadpay.io",
+    private func makeConfig(pollInterval: TimeInterval = 600) -> GatlioConfig {
+        GatlioConfig(
+            apiBase: "https://app.gatlio.io",
             tenantSlug: "acme",
             customerId: "cus_123",
             publishableKey: "pk_live_abc",
@@ -16,25 +16,25 @@ final class SteadpayClientTests: XCTestCase {
         )
     }
 
-    private func makeResponse(_ status: SteadpayStatus) -> StatusResponse {
+    private func makeResponse(_ status: GatlioStatus) -> StatusResponse {
         StatusResponse(
             status: status,
             entitlements: Entitlements(poweredByWatermark: true, customDomain: false, downstreamWebhooks: false),
-            cardUpdateUrl: URL(string: "https://app.steadpay.io/update-card")
+            cardUpdateUrl: URL(string: "https://app.gatlio.io/update-card")
         )
     }
 
     // MARK: — initial state
 
     func testInitialStatusIsLoading() {
-        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _, _ in
+        let client = GatlioClient(config: makeConfig(), fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
         XCTAssertEqual(client.status, .loading)
     }
 
     func testInitialDismissedIsFalse() {
-        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _, _ in
+        let client = GatlioClient(config: makeConfig(), fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
         XCTAssertFalse(client.dismissed)
@@ -44,7 +44,7 @@ final class SteadpayClientTests: XCTestCase {
 
     func testForcedStatusBypassesPolling() async {
         var fetchCalled = false
-        let client = SteadpayClient(config: makeConfig(), forcedStatus: .lockout, fetch: { _, _, _, _, _ in
+        let client = GatlioClient(config: makeConfig(), forcedStatus: .lockout, fetch: { _, _, _, _, _ in
             fetchCalled = true
             return self.makeResponse(.active)
         })
@@ -54,7 +54,7 @@ final class SteadpayClientTests: XCTestCase {
     }
 
     func testForcedStatusEmitsImmediately() async {
-        let client = SteadpayClient(config: makeConfig(), forcedStatus: .warning, fetch: { _, _, _, _, _ in
+        let client = GatlioClient(config: makeConfig(), forcedStatus: .warning, fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
         client.start()
@@ -64,7 +64,7 @@ final class SteadpayClientTests: XCTestCase {
     // MARK: — start() polls and publishes
 
     func testStartPublishesCorrectStatus() async throws {
-        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _, _ in
+        let client = GatlioClient(config: makeConfig(), fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
 
@@ -87,7 +87,7 @@ final class SteadpayClientTests: XCTestCase {
     // MARK: — dismissWarning
 
     func testDismissWarningSetsDismissedTrue() {
-        let client = SteadpayClient(config: makeConfig(), fetch: { _, _, _, _, _ in
+        let client = GatlioClient(config: makeConfig(), fetch: { _, _, _, _, _ in
             self.makeResponse(.active)
         })
         client.dismissWarning()
@@ -97,14 +97,14 @@ final class SteadpayClientTests: XCTestCase {
     // MARK: — triggerCardUpdate
 
     func testTriggerCardUpdateResetsDismissed() async throws {
-        let client = SteadpayClient(
+        let client = GatlioClient(
             config: makeConfig(pollInterval: 600),
             urlOpener: { _ in },
             fetch: { _, _, _, _, _ in self.makeResponse(.active) }
         )
 
         // inject a forced cardUpdateUrl via start with forcedStatus
-        let forcedClient = SteadpayClient(
+        let forcedClient = GatlioClient(
             config: makeConfig(),
             forcedStatus: .lockout,
             urlOpener: { _ in },
@@ -119,7 +119,7 @@ final class SteadpayClientTests: XCTestCase {
 
     func testTriggerCardUpdateCallsUrlOpener() async {
         var openedURL: URL?
-        let client = SteadpayClient(
+        let client = GatlioClient(
             config: makeConfig(),
             forcedStatus: .lockout,
             urlOpener: { url in openedURL = url },
@@ -134,7 +134,7 @@ final class SteadpayClientTests: XCTestCase {
 
     func testStopPreventsPolling() async throws {
         var fetchCallCount = 0
-        let client = SteadpayClient(config: makeConfig(pollInterval: 600), fetch: { _, _, _, _, _ in
+        let client = GatlioClient(config: makeConfig(pollInterval: 600), fetch: { _, _, _, _, _ in
             fetchCallCount += 1
             return self.makeResponse(.active)
         })
@@ -151,11 +151,11 @@ final class SteadpayClientTests: XCTestCase {
 
     func testOnErrorCallbackFiredOnFetchFailure() async throws {
         var capturedError: Error?
-        let callbacks = SteadpayCallbacks(onError: { capturedError = $0 })
-        let client = SteadpayClient(
+        let callbacks = GatlioCallbacks(onError: { capturedError = $0 })
+        let client = GatlioClient(
             config: makeConfig(),
             callbacks: callbacks,
-            fetch: { _, _, _, _, _ in throw SteadpayError.unauthorized }
+            fetch: { _, _, _, _, _ in throw GatlioError.unauthorized }
         )
 
         let expectation = XCTestExpectation(description: "onError fires")
@@ -178,7 +178,7 @@ final class SteadpayClientTests: XCTestCase {
 
     func testTriggerCardUpdateDoesNotOpenNonHttpsUrl() async {
         var opened: URL?
-        let client = SteadpayClient(
+        let client = GatlioClient(
             config: makeConfig(),
             forcedStatus: nil,
             urlOpener: { opened = $0 },
@@ -197,16 +197,16 @@ final class SteadpayClientTests: XCTestCase {
     }
 }
 
-// Precondition trap tests — SteadpayConfig validation
-final class SteadpayConfigValidationTests: XCTestCase {
+// Precondition trap tests — GatlioConfig validation
+final class GatlioConfigValidationTests: XCTestCase {
     func testHttpApiBaseTraps() {
         // precondition violations crash in debug; verify the message is what we set.
         // In test builds we can't easily catch fatalError/preconditionFailure without
         // a signal handler, so we document the requirement via a comment and trust
         // the precondition keyword to enforce it at runtime.
         // The following assertion verifies a valid config succeeds (no trap):
-        let _ = SteadpayConfig(
-            apiBase: "https://app.steadpay.io",
+        let _ = GatlioConfig(
+            apiBase: "https://app.gatlio.io",
             tenantSlug: "acme",
             customerId: "cus_123",
             publishableKey: "pk_live_abc",
@@ -217,8 +217,8 @@ final class SteadpayConfigValidationTests: XCTestCase {
 }
 
 // Convenience init for tests that omit urlOpener
-extension SteadpayClient {
-    convenience init(config: SteadpayConfig, fetch: @escaping FetchFunction) {
+extension GatlioClient {
+    convenience init(config: GatlioConfig, fetch: @escaping FetchFunction) {
         self.init(config: config, callbacks: nil, forcedStatus: nil, urlOpener: { _ in }, fetch: fetch)
     }
 }

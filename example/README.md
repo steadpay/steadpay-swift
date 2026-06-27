@@ -1,24 +1,24 @@
-# ArcaExample — steadpay-swift
+# ArcaExample — gatlio-swift
 
-A fictional analytics SaaS app that demonstrates a complete `steadpay-swift` integration. Arcta is used as the host app throughout Steadpay's example suite so you can compare SDK behaviour across platforms side by side.
+A fictional analytics SaaS app that demonstrates a complete `gatlio-swift` integration. Arcta is used as the host app throughout Gatlio's example suite so you can compare SDK behaviour across platforms side by side.
 
 ## Screens
 
 | Screen | File | Purpose |
 |--------|------|---------|
 | Login | `ArcaExample/LoginView.swift` | Fake login form — any credentials navigate to Home |
-| Home | `ArcaExample/HomeView.swift` | Main content wrapped in `SteadpaySandbox` |
+| Home | `ArcaExample/HomeView.swift` | Main content wrapped in `GatlioSandbox` |
 | Settings | `ArcaExample/SettingsView.swift` | Static account info screen |
 | Content | `ArcaExample/ArctaContentView.swift` | Fake analytics dashboard — the "protected" content |
 
-`SteadpaySandbox` lives in `HomeView.swift`. It wraps `ArctaContentView` and surfaces a `DEV` badge in the bottom-right corner of the screen.
+`GatlioSandbox` lives in `HomeView.swift`. It wraps `ArctaContentView` and surfaces a `DEV` badge in the bottom-right corner of the screen.
 
 ## Running
 
 ### Prerequisites
 
 - macOS with Xcode 16.4.0
-- The package resolves `steadpay-swift` from the local path — no extra setup needed
+- The package resolves `gatlio-swift` from the local path — no extra setup needed
 
 ### Open the project
 
@@ -42,9 +42,9 @@ xcodebuild \
 
 Plug in → Xcode detects the device → select it in the scheme picker → **⌘R**. A free Apple developer account is sufficient for personal device testing.
 
-> Physical devices can't reach `localhost`. Use ngrok (`ngrok http 3000`) to expose your local Steadpay instance and enter the ngrok URL in Live mode.
+> Physical devices can't reach `localhost`. Use ngrok (`ngrok http 3000`) to expose your local Gatlio instance and enter the ngrok URL in Live mode.
 
-## Testing with SteadpaySandbox
+## Testing with GatlioSandbox
 
 ### Sandbox mode (no server needed)
 
@@ -82,9 +82,9 @@ The sheet also shows a **callback log** (last 5 invocations). Confirm `onLockout
 
 Every view file ships with `#Preview` blocks. Open any file in Xcode and toggle the preview panel (**⌘⌥↩**) to see all states rendered side by side — no simulator launch needed.
 
-### Live mode (real Steadpay instance)
+### Live mode (real Gatlio instance)
 
-1. Start Steadpay locally (`npm run dev`) and expose it via ngrok.
+1. Start Gatlio locally (`npm run dev`) and expose it via ngrok.
 2. Run `npm run seed` to create the `test-harness` tenant and seeded subscribers.
 3. In the example app, tap the **DEV** badge and switch to **Live** mode in the sheet.
 4. Enter:
@@ -109,9 +109,9 @@ Background the app and foreground it — `UIApplication.didBecomeActiveNotificat
 
 ```swift
 // ArcaExample/HomeView.swift
-import SteadpayUI
+import GatlioUI
 
-SteadpaySandbox(
+GatlioSandbox(
     onLockout: { print("lockout") },
     onWarning: { print("warning") },
     onActive: { print("active") }
@@ -120,13 +120,13 @@ SteadpaySandbox(
 }
 ```
 
-For production, replace `SteadpaySandbox` with `SteadpayGate`:
+For production, replace `GatlioSandbox` with `GatlioGate`:
 
 ```swift
-import SteadpayUI
+import GatlioUI
 
-SteadpayGate(
-    apiBase: "https://api.steadpay.com",
+GatlioGate(
+    apiBase: "https://api.gatlio.io",
     tenantSlug: "your-slug",
     publishableKey: "pk_live_xxx",
     customerId: currentUser.stripeCustomerId,
@@ -137,4 +137,4 @@ SteadpayGate(
 }
 ```
 
-UIKit apps import `Steadpay` (not `SteadpayUI`) and observe `SteadpayClient` directly via Combine or KVO — see the main SDK README for the UIKit integration path.
+UIKit apps import `Gatlio` (not `GatlioUI`) and observe `GatlioClient` directly via Combine or KVO — see the main SDK README for the UIKit integration path.

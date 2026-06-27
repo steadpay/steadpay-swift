@@ -1,5 +1,5 @@
 import XCTest
-@testable import Steadpay
+@testable import Gatlio
 
 final class ComputeTransitionTests: XCTestCase {
 

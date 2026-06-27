@@ -1,5 +1,5 @@
 import XCTest
-@testable import Steadpay
+@testable import Gatlio
 
 final class EnforcementCopyTests: XCTestCase {
     // Use the real wire format: JS Date.toISOString() always emits fractional seconds.

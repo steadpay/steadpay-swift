@@ -1,4 +1,4 @@
-public enum SteadpayError: Error, Equatable {
+public enum GatlioError: Error, Equatable {
     case invalidURL
     case unauthorized
     case tenantNotFound

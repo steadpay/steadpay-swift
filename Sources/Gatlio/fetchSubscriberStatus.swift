@@ -19,7 +19,7 @@ public func fetchSubscriberStatus(
     let encodedHmac = hmac.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? hmac
 
     guard let url = URL(string: "\(baseURL)/api/subscriber-status/\(encodedSlug)?stripe_customer_id=\(encodedCustomer)&hmac=\(encodedHmac)") else {
-        throw SteadpayError.invalidURL
+        throw GatlioError.invalidURL
     }
 
     var request = URLRequest(url: url)
@@ -28,19 +28,19 @@ public func fetchSubscriberStatus(
 
     let (data, response) = try await session.data(for: request)
     guard let http = response as? HTTPURLResponse else {
-        throw SteadpayError.unexpectedStatus(0)
+        throw GatlioError.unexpectedStatus(0)
     }
 
     if http.statusCode == 402 { return failOpenResponse }
-    if http.statusCode == 401 { throw SteadpayError.unauthorized }
-    if http.statusCode == 404 { throw SteadpayError.tenantNotFound }
+    if http.statusCode == 401 { throw GatlioError.unauthorized }
+    if http.statusCode == 404 { throw GatlioError.tenantNotFound }
     guard http.statusCode == 200 else {
-        throw SteadpayError.unexpectedStatus(http.statusCode)
+        throw GatlioError.unexpectedStatus(http.statusCode)
     }
 
     let json = try JSONDecoder().decode(APIResponse.self, from: data)
     return StatusResponse(
-        status: SteadpayStatus(rawValue: json.status) ?? .error,
+        status: GatlioStatus(rawValue: json.status) ?? .error,
         entitlements: Entitlements(
             poweredByWatermark: json.entitlements.powered_by_watermark,
             customDomain: json.entitlements.custom_domain,

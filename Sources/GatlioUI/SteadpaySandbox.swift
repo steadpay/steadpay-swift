@@ -1,7 +1,7 @@
 import SwiftUI
-import Steadpay
+import Gatlio
 
-public struct SteadpaySandbox<Content: View>: View {
+public struct GatlioSandbox<Content: View>: View {
     private let lockoutScreen: ((@escaping () -> Void, Entitlements?, String, String) -> AnyView)?
     private let warningBanner: ((@escaping () -> Void, String) -> AnyView)?
     private let content: Content
@@ -107,7 +107,7 @@ public struct SteadpaySandbox<Content: View>: View {
     private var sheetContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("STEADPAY SANDBOX")
+                Text("GATLIO SANDBOX")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.secondary)
                     .kerning(1)
@@ -118,7 +118,7 @@ public struct SteadpaySandbox<Content: View>: View {
             }
 
             HStack(spacing: 8) {
-                ForEach([SteadpayStatus.active, .warning, .lockout, .error], id: \.self) { s in
+                ForEach([GatlioStatus.active, .warning, .lockout, .error], id: \.self) { s in
                     Button {
                         model.changeStatus(s)
                     } label: {
@@ -157,7 +157,7 @@ public struct SteadpaySandbox<Content: View>: View {
         .padding(16)
     }
 
-    private func pillColor(_ status: SteadpayStatus) -> Color {
+    private func pillColor(_ status: GatlioStatus) -> Color {
         switch status {
         case .active: return .green
         case .warning: return .orange
@@ -168,5 +168,5 @@ public struct SteadpaySandbox<Content: View>: View {
 }
 
 #Preview("Active") {
-    SteadpaySandbox { Text("Protected content") }
+    GatlioSandbox { Text("Protected content") }
 }

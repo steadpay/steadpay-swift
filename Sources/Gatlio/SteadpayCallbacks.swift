@@ -1,4 +1,4 @@
-public struct SteadpayCallbacks {
+public struct GatlioCallbacks {
     public var onLockout: ((String) -> Void)?
     public var onWarning: ((String) -> Void)?
     public var onActive: ((String) -> Void)?

@@ -1,26 +1,26 @@
 import Foundation
-import Steadpay
+import Gatlio
 
 internal let sandboxRecoveredNote =
-    "onRecovered requires a real card update — test against a live Steadpay environment."
+    "onRecovered requires a real card update — test against a live Gatlio environment."
 
 internal final class SandboxViewModel: ObservableObject {
-    @Published var currentStatus: SteadpayStatus = .active
+    @Published var currentStatus: GatlioStatus = .active
     @Published var isPanelOpen: Bool = false
     @Published var isDismissed: Bool = false
     @Published var log: [String] = []
-    private(set) var lastStatus: SteadpayStatus? = .active
+    private(set) var lastStatus: GatlioStatus? = .active
 
     var onLockout: (() -> Void)?
     var onWarning: (() -> Void)?
     var onActive: (() -> Void)?
     var onError: ((Error) -> Void)?
 
-    func changeStatus(_ next: SteadpayStatus) {
+    func changeStatus(_ next: GatlioStatus) {
         if next == .error {
             if currentStatus == .error { return }
             let err = NSError(
-                domain: "SteadpaySandbox", code: 0,
+                domain: "GatlioSandbox", code: 0,
                 userInfo: [NSLocalizedDescriptionKey: "sandbox_error"]
             )
             onError?(err)

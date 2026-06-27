@@ -1,8 +1,8 @@
 import XCTest
-@testable import Steadpay
+@testable import Gatlio
 
 final class FetchSubscriberStatusTests: XCTestCase {
-    let BASE_URL = "https://app.steadpay.io"
+    let BASE_URL = "https://api.gatlio.io"
     let TENANT = "acme"
     let CUSTOMER = "cus_123"
     let KEY = "pk_live_abc"
@@ -24,7 +24,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
                 "custom_domain": false,
                 "downstream_webhooks": false
             ],
-            "card_update_url": "https://app.steadpay.io/update-card"
+            "card_update_url": "https://api.gatlio.io/update-card"
         ])
 
         let result = try await fetchSubscriberStatus(
@@ -34,7 +34,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
 
         XCTAssertEqual(result.status, .active)
         XCTAssertEqual(result.entitlements.poweredByWatermark, true)
-        XCTAssertEqual(result.cardUpdateUrl, URL(string: "https://app.steadpay.io/update-card"))
+        XCTAssertEqual(result.cardUpdateUrl, URL(string: "https://api.gatlio.io/update-card"))
     }
 
     func testParsesContextAwareCopyFields() async throws {
@@ -45,7 +45,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
                 "custom_domain": false,
                 "downstream_webhooks": false
             ],
-            "card_update_url": "https://app.steadpay.io/update-card",
+            "card_update_url": "https://api.gatlio.io/update-card",
             "decline_category": "insufficient_funds",
             "next_retry_at": "2026-06-20T12:00:00Z",
             "is_final_retry": true,
@@ -71,7 +71,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
                 "custom_domain": false,
                 "downstream_webhooks": false
             ],
-            "card_update_url": "https://app.steadpay.io/update-card"
+            "card_update_url": "https://api.gatlio.io/update-card"
         ])
 
         let result = try await fetchSubscriberStatus(
@@ -107,7 +107,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
                 publishableKey: KEY, hmac: HMAC, session: .mock
             )
             XCTFail("Expected throw")
-        } catch SteadpayError.unauthorized {
+        } catch GatlioError.unauthorized {
             // pass
         }
     }
@@ -121,7 +121,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
                 publishableKey: KEY, hmac: HMAC, session: .mock
             )
             XCTFail("Expected throw")
-        } catch SteadpayError.tenantNotFound {
+        } catch GatlioError.tenantNotFound {
             // pass
         }
     }
@@ -135,7 +135,7 @@ final class FetchSubscriberStatusTests: XCTestCase {
                 publishableKey: KEY, hmac: HMAC, session: .mock
             )
             XCTFail("Expected throw")
-        } catch SteadpayError.unexpectedStatus(let code) {
+        } catch GatlioError.unexpectedStatus(let code) {
             XCTAssertEqual(code, 500)
         }
     }

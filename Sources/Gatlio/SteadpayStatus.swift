@@ -1,4 +1,4 @@
-public enum SteadpayStatus: String, Equatable {
+public enum GatlioStatus: String, Equatable {
     case loading
     case active
     case warning

@@ -1,8 +1,8 @@
 import XCTest
-@testable import SteadpayUI
-import Steadpay
+@testable import GatlioUI
+import Gatlio
 
-final class SteadpaySandboxTests: XCTestCase {
+final class GatlioSandboxTests: XCTestCase {
 
     // MARK: - SandboxViewModel logic (tests observable side effects)
 
@@ -109,7 +109,7 @@ final class SteadpaySandboxTests: XCTestCase {
     func testOnRecoveredNoteText() {
         XCTAssertEqual(
             sandboxRecoveredNote,
-            "onRecovered requires a real card update — test against a live Steadpay environment."
+            "onRecovered requires a real card update — test against a live Gatlio environment."
         )
     }
 }

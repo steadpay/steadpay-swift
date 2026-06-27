@@ -1,5 +1,5 @@
 import SwiftUI
-import Steadpay
+import Gatlio
 
 // No card-update CTA in warning state (#041): warning is only reachable via soft
 // decline, where retrying — not re-entering card details — is the resolution path.

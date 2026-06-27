@@ -1,5 +1,5 @@
 import SwiftUI
-import Steadpay
+import Gatlio
 
 public struct LockoutScreen: View {
     let poweredByWatermark: Bool
@@ -54,7 +54,7 @@ public struct LockoutScreen: View {
             if poweredByWatermark {
                 VStack {
                     Spacer()
-                    Text("Powered by Steadpay")
+                    Text("Powered by Gatlio")
                         .font(.system(size: 12))
                         .foregroundColor(Color(white: 0.27))
                         .padding(.bottom, 32)

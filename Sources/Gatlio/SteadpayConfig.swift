@@ -1,6 +1,6 @@
 import Foundation
 
-public struct SteadpayConfig {
+public struct GatlioConfig {
     public let apiBase: String
     public let tenantSlug: String
     public let customerId: String
